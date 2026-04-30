@@ -7,6 +7,7 @@ Claude Code skills for the BuildEye workflow — meeting transcription, summariz
 | Skill | What it does | Download |
 |-------|-------------|----------|
 | [meeting-transcriber](./meeting-transcriber/) | Full pipeline: transcribe Hebrew audio → detailed summary → 1-page executive summary → RTL Hebrew PDF | [⬇ ZIP](https://github.com/amirmiz/BuildEye-Skills/releases/latest/download/meeting-transcriber.zip) |
+| [buildeye-quotation](./buildeye-quotation/) | Hebrew quotation generator: guided questions → fills BuildEye DOCX template with auto-incrementing quote number | [⬇ ZIP](https://github.com/amirmiz/BuildEye-Skills/releases/latest/download/buildeye-quotation.zip) |
 
 ## How to install a skill
 
