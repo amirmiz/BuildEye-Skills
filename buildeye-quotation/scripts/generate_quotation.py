@@ -60,6 +60,30 @@ def make_rtl_rpr():
     return rPr
 
 
+def make_heading1_title_rpr():
+    """Times New Roman 18pt Bold Underline for quotation subject (הנדון)."""
+    rPr = OxmlElement("w:rPr")
+    rFonts = OxmlElement("w:rFonts")
+    rFonts.set(qn("w:ascii"), "Times New Roman")
+    rFonts.set(qn("w:hAnsi"), "Times New Roman")
+    rFonts.set(qn("w:cs"), "Times New Roman")
+    rPr.append(rFonts)
+    b = OxmlElement("w:b")
+    rPr.append(b)
+    u = OxmlElement("w:u")
+    u.set(qn("w:val"), "single")
+    rPr.append(u)
+    sz = OxmlElement("w:sz")
+    sz.set(qn("w:val"), "36")  # 18pt = 36 half-points
+    rPr.append(sz)
+    szCs = OxmlElement("w:szCs")
+    szCs.set(qn("w:val"), "36")
+    rPr.append(szCs)
+    rtl = OxmlElement("w:rtl")
+    rPr.append(rtl)
+    return rPr
+
+
 def make_arial11_rpr():
     rPr = OxmlElement("w:rPr")
     rFonts = OxmlElement("w:rFonts")
@@ -372,23 +396,31 @@ def main():
             print(f"  [OK] Recipient: {a.client_name} | {position_company}")
             break
 
-    # 2. Heading
+    # 2. Heading — Heading 1 style, Times New Roman 18 Bold Underline
     for para in paragraphs:
         if "לסריקה ומידול" in para.text and "הנדון" in para.text:
             p_el = para._p
-            runs = p_el.findall(qn("w:r"))
-            saved_rPr = copy_rpr(runs[0]) if runs else None
-            for r in runs:
+            # Apply Heading 1 paragraph style
+            pPr = p_el.find(qn("w:pPr"))
+            if pPr is None:
+                pPr = OxmlElement("w:pPr")
+                p_el.insert(0, pPr)
+            pStyle_el = pPr.find(qn("w:pStyle"))
+            if pStyle_el is None:
+                pStyle_el = OxmlElement("w:pStyle")
+                pPr.insert(0, pStyle_el)
+            pStyle_el.set(qn("w:val"), "1")
+            # Replace runs with Times New Roman 18 Bold Underline
+            for r in p_el.findall(qn("w:r")):
                 p_el.remove(r)
             run_el = OxmlElement("w:r")
-            if saved_rPr is not None:
-                run_el.append(saved_rPr)
+            run_el.append(make_heading1_title_rpr())
             t = OxmlElement("w:t")
             t.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
             t.text = "הנדון: " + a.title
             run_el.append(t)
             p_el.append(run_el)
-            print("  [OK] Heading (underlined): " + a.title)
+            print("  [OK] Heading (Heading1, TNR 18 Bold Underline): " + a.title)
             break
 
     # 3. Body text
@@ -483,6 +515,7 @@ def main():
     # 13. RTL pass — disabled: sectPr bidi + Normal style bidi handle it
     # ensure_rtl_all_paragraphs(doc)
 
+    os.makedirs(a.output_dir, exist_ok=True)
     # Save via BytesIO then write directly — avoids temp-file copy corruption
     output_path = generate_output_name(a.title, a.output_dir, quote_number, a.company_name)
     buf = io.BytesIO()

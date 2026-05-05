@@ -17,20 +17,19 @@ description: מחולל הצעות מחיר בילדאיי (BuildEye Quotation G
 
 ## נתיבים חשובים
 
-הרץ בתחילת העבודה:
+**שלב 0 — בקש גישה לתיקיות המשתמש (לפני כל דבר אחר):**
+
+השתמש ב-`request_cowork_directory` עם שני הנתיבים הבאים:
+1. `C:\Users\1\BuildEye\MGMT - Documents\הצעות מחיר`
+2. `C:\Users\1\BuildEye\MGMT - Documents\CLAUDE\BuildEye Skills\buildeye-quotation\scripts`
+
+לאחר שהתיקיות עלו לסשן, הרץ:
 
 ```bash
 TEMPLATE=$(find /sessions -name "buildeye_quotation.docx" 2>/dev/null | head -1)
-OUTPUT_DIR=$(dirname "$TEMPLATE")
-# חפש את הסקריפט המעודכן בתיקיית הפלט תחילה, ואחר כך בתיקיית הסקיל
-SCRIPT=$(find "$OUTPUT_DIR" -path "*/buildeye-quotation/scripts/generate_quotation.py" 2>/dev/null | head -1)
-if [ -z "$SCRIPT" ]; then
-    SCRIPT=$(find /sessions -path "*/buildeye-quotation/scripts/generate_quotation.py" 2>/dev/null | grep -v "\.claude" | head -1)
-fi
-if [ -z "$SCRIPT" ]; then
-    SCRIPT=$(find /sessions -path "*/buildeye-quotation/scripts/generate_quotation.py" 2>/dev/null | head -1)
-fi
-SKILL_SCRIPTS=$(dirname "$SCRIPT")
+COUNTER_DIR=$(dirname "$TEMPLATE")
+OUTPUT_DIR="$COUNTER_DIR/2026/SKILL"
+SCRIPT=$(find /sessions -name "generate_quotation.py" 2>/dev/null | grep -v "\.claude" | head -1)
 ```
 
 ---
@@ -124,9 +123,10 @@ _(שוטף + 60 / שוטף + 90 — דרך תיבת 'אחר')_
 - **תנאי תשלום**: העבר את הייבל כמות שהוא — כל 4 האפשרויות הן הטקסט הסופי שיופיע במסמך
 
 ```bash
-python "$SKILL_SCRIPTS/generate_quotation.py" \
+python "$SCRIPT" \
   --template "$TEMPLATE" \
   --output-dir "$OUTPUT_DIR" \
+  --counter-dir "$COUNTER_DIR" \
   --client-name "שם הלקוח" \
   --client-position "תפקיד" \
   --company-name "שם החברה" \
@@ -147,18 +147,19 @@ QUOTE_NUMBER: 321
 ```
 
 **הערות חשובות:**
-- מספר ההצעה מנוהל אוטומטית ב-`quote_counter.json` בתיקיית הפלט
+- מספר ההצעה מנוהל אוטומטית ב-`quote_counter.json` בנתיב `$COUNTER_DIR`
 - שם הקובץ כולל אוטומטית את מספר ההצעה ושם החברה
 - שדה "הצעה מס':" בכותרת המסמך ימולא אוטומטית
 - אם נבחר "תוכנית מדידה" ללא "מודל תלת ממדי" — שורת Revit תוסר, "מידול"→"מיפוי", "ימודל"→"ימופה", ושורת "המרה" תוסר אוטומטית
 - עמודת "#" ממוספרת מחדש אוטומטית לאחר הסרת שורות
+- **פונטים:** טקסט שמוסיף הסקריפט — Arial (Body CS) גודל 11. שורת הנדון (כותרת ההצעה) — Heading 1, Times New Roman 18, Bold, Underline
 
 ---
 
 ## שלב 7: הצג את הקובץ
 
 ```
-[פתח את הצעת המחיר](computer://C:\Users\1\BuildEye\MGMT - Documents\סקיל הצעות מחיר\הצעות מחיר בילדאיי\[שם_הקובץ])
+[פתח את הצעת המחיר](computer://C:\Users\1\BuildEye\MGMT - Documents\הצעות מחיר\2026\SKILL\[שם_הקובץ])
 ```
 
 הזכר למשתמש: **עמודת המחיר ריקה — יש למלא ידנית בקובץ**.
@@ -168,5 +169,6 @@ QUOTE_NUMBER: 321
 ## הערות לשגיאות
 
 - אם הטמפלייט פגום — הסקריפט יידע לדווח
-- אם `SKILL_SCRIPTS` ריק — הסקריפט המעודכן נמצא ב: `הצעות מחיר בילדאיי/buildeye-quotation/scripts/generate_quotation.py`
-- counter file נשמר ב: `הצעות מחיר בילדאיי/quote_counter.json`
+- נתיב הסקריפט: `C:\Users\1\BuildEye\MGMT - Documents\CLAUDE\BuildEye Skills\buildeye-quotation\scripts\generate_quotation.py`
+- counter file נשמר ב: `C:\Users\1\BuildEye\MGMT - Documents\הצעות מחיר\quote_counter.json`
+- תיקיית פלט: `C:\Users\1\BuildEye\MGMT - Documents\הצעות מחיר\2026\SKILL` (נוצרת אוטומטית אם לא קיימת)
